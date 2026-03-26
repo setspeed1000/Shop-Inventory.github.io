@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3161 Inventory Database</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #c41e3a;
+            --primary-light: #e74c3c;
+            --bg: #0a0e27;
+            --bg-secondary: #1a1f3a;
+            --text: #e8eef7;
+            --text-secondary: #a0aac4;
+            --border: #2d3656;
+            --success: #27ae60;
+            --accent: #f39c12;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--bg) 0%, #0f1535 100%);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input, select {
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(196, 30, 58, 0.1);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(196, 30, 58, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--accent);
+            border: 2px solid var(--accent);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(243, 156, 18, 0.1);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .object-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .object-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 8px 20px rgba(196, 30, 58, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .object-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            word-break: break-word;
+        }
+
+        .object-detail {
+            margin-bottom: 0.75rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .object-detail-label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            min-width: 80px;
+            font-weight: 600;
+        }
+
+        .object-detail-value {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .location-badge {
+            display: inline-block;
+            background: rgba(196, 30, 58, 0.2);
+            color: var(--primary);
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid rgba(196, 30, 58, 0.4);
+        }
+
+        .shop-diagram-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .shop-diagram-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-top: 1rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .footer {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 1.2em;
+            height: 1.2em;
+            border: 2px solid var(--text-secondary);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: rgba(231, 76, 60, 0.1);
+            border: 1px solid rgba(231, 76, 60, 0.5);
+            color: var(--primary-light);
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .controls {
+                grid-template-columns: 1fr;
+            }
+
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚙️ Team 3161 Inventory Database</h1>
+            <p class="subtitle">Find parts and tools by location</p>
+        </header>
+
+        <div class="shop-diagram-section">
+            <h2>📍 Shop Diagram</h2>
+            <img src="aero1.PNG" class="shop-diagram-image" alt="Shop Diagram">
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="searchInput">Search Object</label>
+                <input type="text" id="searchInput" placeholder="e.g., motor, bolt, wheel...">
+            </div>
+            <div class="control-group">
+                <label for="sortBy">Sort By</label>
+                <select id="sortBy">
+                    <option value="name">Object Name</option>
+                    <option value="location">Location</option>
+                    <option value="recent">Most Recent</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>&nbsp;</label>
+                <button class="btn btn-secondary" onclick="clearFilters()">Clear Filters</button>
+            </div>
+        </div>
+
+        <div class="stats" id="stats"></div>
+
+        <div id="error"></div>
+
+        <div class="results-header">
+            <span>Showing <strong id="resultCount">0</strong> objects</span>
+            <span id="loadStatus"></span>
+        </div>
+
+        <div class="results-grid" id="resultsGrid"></div>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <div class="empty-state-icon">📦</div>
+            <p>No objects found. Try adjusting your filters or search.</p>
+        </div>
+
+        <div class="footer">
+            <p>Data auto-refreshes every 30 seconds. Last updated: <strong id="lastUpdate">Never</strong></p>
+        </div>
+    </div>
+
+    <script>
+        const SHEET_ID = '1aGeEBdUtnIYCp5P1pDF1H_SvR2hcgqCscDC3USZq4e8';
+        const GID = '517653939';
+        
+        let allData = [];
+        let filteredData = [];
+
+async function loadData() {
+            const proxies = [
+                `https://cors-anywhere.herokuapp.com/https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}`,
+                `https://api.codetabs.com/v1/proxy?quest=https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}`,
+                `https://thingproxy.freeboard.io/fetch/https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}`
+            ];
+
+            let lastError = null;
+            
+            for (let i = 0; i < proxies.length; i++) {
+                try {
+                    const response = await fetch(proxies[i]);
+                    if (response.ok) {
+                        const csv = await response.text();
+                        if (csv.length > 0 && !csv.includes('error')) {
+                            parseCSV(csv);
+                            displayStats();
+                            updateResults();
+                            document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+                            clearErrorBox();
+                            return;
+                        }
+                    }
+                } catch (error) {
+                    lastError = error;
+                    console.log(`Proxy ${i + 1} failed, trying next...`);
+                }
+            }
+
+            showError(`Failed to load data. Error: ${lastError?.message || 'Unknown error'}`);
+        }
+
+        function clearErrorBox() {
+            document.getElementById('error').innerHTML = '';
+        }
+
+        function parseCSV(csv) {
+            const lines = csv.trim().split('\n');
+            if (lines.length < 2) return;
+
+            allData = [];
+            for (let i = 1; i < lines.length; i++) {
+                const values = parseCSVLine(lines[i]);
+                if (values.length < 2) continue;
+                if (values[1].toLowerCase().trim() === 'a') continue;
+
+                // Check both drawer columns (D and E) - use whichever has a value
+                const drawerD = values[3] || '';
+                const drawerE = values[4] || '';
+                const drawer = drawerD.trim() || drawerE.trim() || '?';
+
+                const entry = {
+                    timestamp: values[0],
+                    object: values[1],
+                    location: values[2],
+                    drawer: drawer
+                };
+                allData.push(entry);
+            }
+
+            allData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        }
+
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let insideQuotes = false;
+
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                const nextChar = line[i + 1];
+
+                if (char === '"') {
+                    if (insideQuotes && nextChar === '"') {
+                        current += '"';
+                        i++;
+                    } else {
+                        insideQuotes = !insideQuotes;
+                    }
+                } else if (char === ',' && !insideQuotes) {
+                    result.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            result.push(current.trim());
+            return result;
+        }
+
+        function displayStats() {
+            const uniqueLocations = new Set(allData.map(d => d.location)).size;
+            const uniqueObjects = new Set(allData.map(d => d.object)).size;
+
+            document.getElementById('stats').innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${allData.length}</div>
+                    <div class="stat-label">Total Entries</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${uniqueObjects}</div>
+                    <div class="stat-label">Unique Objects</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${uniqueLocations}</div>
+                    <div class="stat-label">Storage Locations</div>
+                </div>
+            `;
+        }
+
+        function updateResults() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const sortBy = document.getElementById('sortBy').value;
+
+            filteredData = allData.filter(item => {
+                const matchesSearch = item.object.toLowerCase().includes(searchTerm) ||
+                                     item.location.toLowerCase().includes(searchTerm);
+                return matchesSearch;
+            });
+
+            switch(sortBy) {
+                case 'location':
+                    filteredData.sort((a, b) => a.location.localeCompare(b.location));
+                    break;
+                case 'recent':
+                    filteredData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                    break;
+                case 'name':
+                default:
+                    filteredData.sort((a, b) => a.object.localeCompare(b.object));
+            }
+
+            renderResults();
+        }
+
+        function renderResults() {
+            const grid = document.getElementById('resultsGrid');
+            const emptyState = document.getElementById('emptyState');
+            const resultCount = document.getElementById('resultCount');
+
+            resultCount.textContent = filteredData.length;
+
+            if (filteredData.length === 0) {
+                grid.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            grid.innerHTML = filteredData.map(item => `
+                <div class="object-card">
+                    <div class="object-name">${escapeHtml(item.object)}</div>
+                    <div class="object-detail">
+                        <div class="object-detail-label">Location:</div>
+                        <div class="object-detail-value">
+                            <span class="location-badge">${escapeHtml(item.location)}</span>
+                        </div>
+                    </div>
+                    <div class="object-detail">
+                        <div class="object-detail-label">Drawer:</div>
+                        <div class="object-detail-value">${escapeHtml(item.drawer)}</div>
+                    </div>
+                    <div class="object-detail" style="margin-top: 1rem; font-size: 0.8rem; color: var(--text-secondary);">
+                        <div class="object-detail-label">Logged:</div>
+                        <div class="object-detail-value">${new Date(item.timestamp).toLocaleDateString()}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('sortBy').value = 'name';
+            updateResults();
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.innerHTML = `<div class="error">${message}</div>`;
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        document.getElementById('searchInput').addEventListener('input', updateResults);
+        document.getElementById('sortBy').addEventListener('change', updateResults);
+
+        // Initial load
+        loadData();
+        setInterval(loadData, 30000);
+    </script>
+</body>
+</html>
